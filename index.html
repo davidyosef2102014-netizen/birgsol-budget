@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>💰 תקציב חודשי</title>
+<link href="https://fonts.bunny.net/css2?family=assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0b0e;--surf:#13151c;--surf2:#1c1e28;--surf3:#252836;--border:rgba(255,255,255,.08);--text:#e8eaf0;--muted:#6b7280;--green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Assistant',sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+/* ═══ TOPBAR ═══ */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(10,11,14,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:20px;font-weight:800;background:linear-gradient(135deg,#22c55e,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.month-nav{display:flex;align-items:center;gap:10px}
+.nav-arr{background:var(--surf2);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;color:var(--text);font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.nav-arr:hover{background:var(--surf3)}
+.month-label{font-size:14px;font-weight:700;min-width:100px;text-align:center}
+
+/* ═══ MAIN ═══ */
+.main{max-width:480px;margin:0 auto;padding:16px}
+
+/* ═══ RING CARD ═══ */
+.ring-card{background:var(--surf);border:1px solid var(--border);border-radius:24px;padding:28px 20px 22px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.ring-card::before{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(34,197,94,.06),transparent 70%);pointer-events:none}
+.ring-wrap{position:relative;width:170px;height:170px;margin:0 auto 20px}
+.ring-svg{transform:rotate(-90deg);overflow:visible}
+.ring-bg{fill:none;stroke:var(--surf2);stroke-width:14}
+.ring-fg{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1),stroke .4s}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.ring-pct{font-size:32px;font-weight:800;line-height:1}
+.ring-sub{font-size:11px;color:var(--muted);font-weight:600}
+.budget-row{display:flex;justify-content:center;gap:28px}
+.bud-col{display:flex;flex-direction:column;align-items:center;gap:2px}
+.bud-num{font-size:22px;font-weight:800}
+.bud-lbl{font-size:11px;color:var(--muted);font-weight:600}
+.bud-num.green{color:var(--green)}
+.bud-num.red{color:var(--red)}
+.bud-num.yellow{color:var(--yellow)}
+
+/* rollover notice */
+.rollover-bar{margin-top:14px;padding:8px 14px;border-radius:12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;justify-content:center}
+.rollover-bar.neg{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.2)}
+.rollover-bar.pos{background:rgba(34,197,94,.08);color:#86efac;border:1px solid rgba(34,197,94,.15)}
+
+/* ═══ ACTIONS ═══ */
+.actions-row{display:flex;gap:10px;margin-bottom:16px}
+.btn-add{flex:1;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s,transform .1s}
+.btn-add:hover{opacity:.88}
+.btn-add:active{transform:scale(.97)}
+.btn-frame{flex:none;padding:13px 18px;border-radius:14px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;transition:all .15s}
+.btn-frame:hover{background:var(--surf2);border-color:var(--purple);color:var(--purple)}
+
+/* ═══ EXPENSE LIST ═══ */
+.section-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.expense-list{display:flex;flex-direction:column;gap:8px}
+.expense-item{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.exp-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.exp-body{flex:1;min-width:0}
+.exp-desc{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-meta{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px}
+.one-time-tag{background:rgba(139,92,246,.15);color:#c4b5fd;padding:1px 7px;border-radius:50px;font-size:10px;font-weight:700}
+.exp-amount{font-size:16px;font-weight:800;flex-shrink:0}
+.exp-amount.regular{color:var(--red)}
+.exp-amount.onetime{color:var(--purple)}
+.exp-del{background:none;border:none;color:var(--muted);font-size:17px;padding:4px;border-radius:8px;transition:all .15s;flex-shrink:0}
+.exp-del:hover{color:var(--red);background:rgba(239,68,68,.1)}
+.empty-msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+.empty-msg .em{font-size:36px;margin-bottom:10px}
+
+/* ═══ MODAL BACKDROP ═══ */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(3px)}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--surf);border-radius:28px 28px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;transform:translateY(60px);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:var(--surf3);border-radius:2px;margin:0 auto 20px}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:12px;font-weight:700;color:var(--muted)}
+.field input,.field select,.field textarea{background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-family:inherit;font-size:15px;outline:none;transition:border-color .2s;text-align:right;width:100%}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field select option{background:var(--surf2)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.toggle-label{font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:2px}
+.toggle-sub{font-size:11px;color:var(--muted);font-weight:400}
+.toggle{width:46px;height:26px;border-radius:50px;background:var(--surf3);border:none;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--purple)}
+.toggle::after{content:'';position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(-20px)}
+.modal-btn{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:16px;font-weight:700;transition:opacity .15s}
+.modal-btn:hover{opacity:.88}
+.modal-btn.purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+.modal-cancel{width:100%;padding:12px;border-radius:14px;border:1px solid var(--border);background:none;color:var(--muted);font-size:14px;font-weight:600;margin-top:8px;transition:all .15s}
+.modal-cancel:hover{background:var(--surf2);color:var(--text)}
+.cats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.cat-btn{padding:10px 4px;border-radius:12px;border:1px solid var(--border);background:var(--surf2);color:var(--text);font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s}
+.cat-btn .cat-icon{font-size:20px}
+.cat-btn.sel{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green)}
+
+/* ═══ HIST TOGGLE ═══ */
+.hist-btn{display:block;width:100%;margin-top:20px;padding:12px;border-radius:14px;border:1px solid var(--border);background:none;color:var(--muted);font-size:13px;font-weight:600;transition:all .15s}
+.hist-btn:hover{background:var(--surf);color:var(--text)}
+.month-hist{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.hist-row{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.hist-month{font-size:13px;font-weight:700}
+.hist-detail{font-size:12px;color:var(--muted);margin-top:1px}
+.hist-badge{font-size:13px;font-weight:800;padding:4px 12px;border-radius:50px}
+.hist-badge.ok{background:rgba(34,197,94,.1);color:var(--green)}
+.hist-badge.over{background:rgba(239,68,68,.1);color:var(--red)}
+
+/* ═══ PROGRESS BAR (alternates) ═══ */
+.prog-bar-wrap{margin-top:10px;background:var(--surf2);border-radius:8px;height:8px;overflow:hidden}
+.prog-bar-fill{height:100%;border-radius:8px;transition:width .6s ease}
+
+/* colors for ring */
+.ok-green{stroke:#22c55e}
+.warn-yellow{stroke:#f59e0b}
+.over-red{stroke:#ef4444}
+</style>
+</head>
+<body>
+
+<!-- MODAL: ADD EXPENSE -->
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ הוספת הוצאה</div>
+
+    <div class="field">
+      <label>תיאור</label>
+      <input id="e-desc" type="text" placeholder="מה קנית?">
+    </div>
+    <div class="field">
+      <label>סכום (₪)</label>
+      <input id="e-amount" type="number" placeholder="0.00" min="0" step="0.5">
+    </div>
+    <div class="field">
+      <label>קטגוריה</label>
+    </div>
+    <div class="cats-grid" id="cats-grid"></div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        חד-פעמי
+        <span class="toggle-sub">לא יורד ממסגרת החודש הבא</span>
+      </div>
+      <button class="toggle" id="onetime-toggle" onclick="toggleOneTime()"></button>
+    </div>
+
+    <button class="modal-btn" onclick="addExpense()">שמור הוצאה</button>
+    <button class="modal-cancel" onclick="closeModal('add-modal')">ביטול</button>
+  </div>
+</div>
+
+<!-- MODAL: RAISE BUDGET -->
+<div class="modal-bg" id="frame-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔼 הגדלת מסגרת</div>
+
+    <div style="background:var(--surf2);border-radius:14px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--muted);line-height:1.6">
+      הגדל את תקציב הבסיס הקבוע שלך.<br>
+      השינוי יחול מהחודש הנוכחי ואילך.
+    </div>
+
+    <div class="field">
+      <label>תקציב בסיס חדש (₪ לחודש)</label>
+      <input id="f-amount" type="number" placeholder="60" min="1" step="5">
+    </div>
+
+    <button class="modal-btn purple" onclick="raiseBudget()">עדכן מסגרת</button>
+    <button class="modal-cancel" onclick="closeModal('frame-modal')">ביטול</button>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">💰 תקציב</div>
+  <div class="month-nav">
+    <button class="nav-arr" onclick="changeMonth(-1)">›</button>
+    <div class="month-label" id="month-label"></div>
+    <button class="nav-arr" onclick="changeMonth(1)">‹</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- RING CARD -->
+  <div class="ring-card">
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 170 170" width="170" height="170">
+        <circle class="ring-bg" cx="85" cy="85" r="72"/>
+        <circle class="ring-fg" id="ring-fg" cx="85" cy="85" r="72"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ring-pct">0%</div>
+        <div class="ring-sub" id="ring-sub">מהתקציב</div>
+      </div>
+    </div>
+
+    <div class="budget-row">
+      <div class="bud-col">
+        <div class="bud-num" id="b-spent">₪0</div>
+        <div class="bud-lbl">הוצאתי</div>
+      </div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div class="bud-col">
+        <div class="bud-num green" id="b-left">₪60</div>
+        <div class="bud-lbl">נשאר לי</div>
+      </div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div class="bud-col">
+        <div class="bud-num" id="b-budget" style="color:var(--blue)">₪60</div>
+        <div class="bud-lbl">מסגרת</div>
+      </div>
+    </div>
+
+    <div id="rollover-bar" style="display:none"></div>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="actions-row">
+    <button class="btn-add" onclick="openModal('add-modal')">
+      <span style="font-size:20px">+</span> הוסף הוצאה
+    </button>
+    <button class="btn-frame" onclick="openModal('frame-modal')">
+      🔼 מסגרת
+    </button>
+  </div>
+
+  <!-- EXPENSE LIST -->
+  <div class="section-title">🧾 הוצאות החודש</div>
+  <div class="expense-list" id="expense-list"></div>
+
+  <!-- HISTORY -->
+  <button class="hist-btn" id="hist-toggle-btn" onclick="toggleHistory()">📊 היסטוריה חודשית ▼</button>
+  <div class="month-hist" id="month-hist" style="display:none"></div>
+
+</div>
+
+<script>
+/* ═══════════ DATA ═══════════ */
+const STORE = 'budget_v2';
+let data = JSON.parse(localStorage.getItem(STORE)||'null') || {
+  baseBudget: 60,
+  months: {}
+};
+function save(){ localStorage.setItem(STORE, JSON.stringify(data)); }
+
+const MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const CATS = [
+  {id:'food',   icon:'🍕', name:'אוכל'},
+  {id:'shop',   icon:'🛒', name:'קניות'},
+  {id:'trans',  icon:'🚗', name:'תחבורה'},
+  {id:'fun',    icon:'🎮', name:'בידור'},
+  {id:'health', icon:'💊', name:'בריאות'},
+  {id:'cloth',  icon:'👕', name:'ביגוד'},
+  {id:'comm',   icon:'📱', name:'תקשורת'},
+  {id:'other',  icon:'⭐', name:'אחר'},
+];
+
+/* ═══════════ MONTH NAVIGATION ═══════════ */
+let viewDate = new Date();
+viewDate.setDate(1);
+
+function getKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function getPrevKey(key){
+  const [y,m] = key.split('-').map(Number);
+  const d = new Date(y, m-2, 1);
+  return getKey(d);
+}
+
+function changeMonth(dir){
+  viewDate.setMonth(viewDate.getMonth() + dir);
+  render();
+}
+
+function isCurrentMonth(){
+  const now = new Date();
+  return viewDate.getFullYear()===now.getFullYear() && viewDate.getMonth()===now.getMonth();
+}
+
+/* ═══════════ BUDGET LOGIC ═══════════ */
+function getMonthData(key){
+  if(!data.months[key]) data.months[key] = { expenses:[], budgetAdjust:0 };
+  return data.months[key];
+}
+
+function getRolloverDebt(key){
+  // How much does the previous month owe us (deducted from this month)
+  const prevKey = getPrevKey(key);
+  const prev = data.months[prevKey];
+  if(!prev) return 0;
+  const prevBudget = getEffectiveBudget(prevKey);
+  const prevRegular = (prev.expenses||[]).filter(e=>!e.oneTime).reduce((s,e)=>s+e.amount,0);
+  const overspend = prevRegular - prevBudget;
+  return overspend > 0 ? overspend : 0;
+}
+
+function getEffectiveBudget(key){
+  const m = data.months[key];
+  const adjust = m ? (m.budgetAdjust||0) : 0;
+  const debt = getRolloverDebt(key);
+  return Math.max(0, data.baseBudget + adjust - debt);
+}
+
+function getSpent(key){
+  const m = data.months[key];
+  if(!m) return { regular:0, oneTime:0, total:0 };
+  const regular = (m.expenses||[]).filter(e=>!e.oneTime).reduce((s,e)=>s+e.amount,0);
+  const oneTime = (m.expenses||[]).filter(e=>e.oneTime).reduce((s,e)=>s+e.amount,0);
+  return { regular, oneTime, total: regular+oneTime };
+}
+
+/* ═══════════ RENDER ═══════════ */
+function render(){
+  const key = getKey(viewDate);
+  const budget = getEffectiveBudget(key);
+  const spent = getSpent(key);
+  const debt = getRolloverDebt(key);
+  const remaining = budget - spent.regular;
+  const pct = budget > 0 ? Math.min(spent.regular / budget, 1) : 1;
+
+  // Month label
+  document.getElementById('month-label').textContent =
+    MONTHS_HE[viewDate.getMonth()] + ' ' + viewDate.getFullYear();
+
+  // Ring
+  const r = 72;
+  const circ = 2 * Math.PI * r;
+  const fg = document.getElementById('ring-fg');
+  fg.style.strokeDasharray = circ;
+  fg.style.strokeDashoffset = circ * (1 - pct);
+  fg.className = 'ring-fg ' + (pct >= 1 ? 'over-red' : pct >= 0.8 ? 'warn-yellow' : 'ok-green');
+
+  const pctInt = Math.round(pct * 100);
+  document.getElementById('ring-pct').textContent = pctInt + '%';
+  document.getElementById('ring-pct').style.color = pct>=1 ? 'var(--red)' : pct>=0.8 ? 'var(--yellow)' : 'var(--green)';
+  document.getElementById('ring-sub').textContent = pct>=1 ? '⚠️ חריגה!' : 'מהתקציב';
+
+  // Numbers
+  document.getElementById('b-spent').textContent = '₪' + fmt(spent.regular);
+  const leftEl = document.getElementById('b-left');
+  leftEl.textContent = (remaining<0?'-':'') + '₪' + fmt(Math.abs(remaining));
+  leftEl.className = 'bud-num ' + (remaining<0 ? 'red' : remaining < budget*0.2 ? 'yellow' : 'green');
+  document.getElementById('b-budget').textContent = '₪' + fmt(budget);
+
+  // Rollover bar
+  const rb = document.getElementById('rollover-bar');
+  if(debt > 0){
+    rb.style.display = 'flex';
+    rb.className = 'rollover-bar neg';
+    rb.innerHTML = `⚠️ מסגרת הופחתה ב-₪${fmt(debt)} בגלל חריגה בחודש קודם`;
+  } else {
+    rb.style.display = 'none';
+  }
+
+  // Expense list
+  renderExpenses(key);
+
+  // History
+  if(document.getElementById('month-hist').style.display !== 'none'){
+    renderHistory();
+  }
+}
+
+function renderExpenses(key){
+  const m = data.months[key];
+  const list = document.getElementById('expense-list');
+  const expenses = (m?.expenses||[]).slice().reverse();
+
+  if(!expenses.length){
+    list.innerHTML = `<div class="empty-msg"><div class="em">🌟</div><p>אין הוצאות החודש הזה<br>לחץ + כדי להוסיף</p></div>`;
+    return;
+  }
+
+  list.innerHTML = expenses.map(e=>{
+    const cat = CATS.find(c=>c.id===e.cat)||CATS[CATS.length-1];
+    const dateStr = new Date(e.date).toLocaleDateString('he-IL',{day:'numeric',month:'short'});
+    return `<div class="expense-item">
+      <div class="exp-icon" style="background:${catColor(cat.id)}22">${cat.icon}</div>
+      <div class="exp-body">
+        <div class="exp-desc">${esc(e.desc||cat.name)}</div>
+        <div class="exp-meta">
+          <span>${dateStr}</span>
+          ${e.oneTime ? '<span class="one-time-tag">חד-פעמי</span>' : ''}
+        </div>
+      </div>
+      <div class="exp-amount ${e.oneTime?'onetime':'regular'}">-₪${fmt(e.amount)}</div>
+      <button class="exp-del" onclick="delExpense('${key}',${e.id})" title="מחק">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderHistory(){
+  const hist = document.getElementById('month-hist');
+  const keys = Object.keys(data.months).sort().reverse();
+  if(!keys.length){ hist.innerHTML='<div class="empty-msg" style="padding:20px"><p>אין היסטוריה עדיין</p></div>'; return; }
+  hist.innerHTML = keys.map(key=>{
+    const [y,m] = key.split('-').map(Number);
+    const budget = getEffectiveBudget(key);
+    const spent = getSpent(key);
+    const over = spent.regular > budget;
+    const diff = Math.abs(spent.regular - budget);
+    return `<div class="hist-row">
+      <div>
+        <div class="hist-month">${MONTHS_HE[m-1]} ${y}</div>
+        <div class="hist-detail">הוצאתי ₪${fmt(spent.regular)} מתוך ₪${fmt(budget)}</div>
+      </div>
+      <div class="hist-badge ${over?'over':'ok'}">${over?'חרגתי ₪'+fmt(diff):'חסכתי ₪'+fmt(diff)}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════ ADD EXPENSE ═══════════ */
+let selectedCat = 'food';
+let isOneTime = false;
+
+function buildCatsGrid(){
+  const grid = document.getElementById('cats-grid');
+  grid.innerHTML = CATS.map(c=>`
+    <button class="cat-btn ${c.id===selectedCat?'sel':''}" onclick="selectCat('${c.id}')">
+      <div class="cat-icon">${c.icon}</div>
+      <div>${c.name}</div>
+    </button>`).join('');
+}
+
+function selectCat(id){ selectedCat=id; buildCatsGrid(); }
+
+function toggleOneTime(){
+  isOneTime = !isOneTime;
+  const btn = document.getElementById('onetime-toggle');
+  btn.className = 'toggle ' + (isOneTime?'on':'');
+}
+
+function addExpense(){
+  const desc = document.getElementById('e-desc').value.trim();
+  const amount = parseFloat(document.getElementById('e-amount').value);
+  if(isNaN(amount)||amount<=0){ alert('אנא הכנס סכום תקין'); return; }
+
+  const key = getKey(viewDate);
+  const m = getMonthData(key);
+  m.expenses.push({
+    id: Date.now(),
+    desc: desc,
+    amount: amount,
+    cat: selectedCat,
+    oneTime: isOneTime,
+    date: Date.now()
+  });
+  save();
+  closeModal('add-modal');
+  render();
+}
+
+function delExpense(key, id){
+  const m = data.months[key];
+  if(!m) return;
+  m.expenses = m.expenses.filter(e=>e.id!==id);
+  save(); render();
+}
+
+/* ═══════════ RAISE BUDGET ═══════════ */
+function raiseBudget(){
+  const val = parseFloat(document.getElementById('f-amount').value);
+  if(isNaN(val)||val<=0){ alert('אנא הכנס סכום תקין'); return; }
+  data.baseBudget = val;
+  save();
+  closeModal('frame-modal');
+  render();
+}
+
+/* ═══════════ MODALS ═══════════ */
+function openModal(id){
+  if(id==='add-modal'){
+    selectedCat='food'; isOneTime=false;
+    document.getElementById('e-desc').value='';
+    document.getElementById('e-amount').value='';
+    document.getElementById('onetime-toggle').className='toggle';
+    buildCatsGrid();
+  }
+  if(id==='frame-modal'){
+    document.getElementById('f-amount').value = data.baseBudget;
+  }
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+
+// Click backdrop to close
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click', e=>{ if(e.target===bg) bg.classList.remove('open'); });
+});
+
+/* ═══════════ HISTORY ═══════════ */
+let histOpen = false;
+function toggleHistory(){
+  histOpen = !histOpen;
+  const el = document.getElementById('month-hist');
+  const btn = document.getElementById('hist-toggle-btn');
+  el.style.display = histOpen ? 'flex' : 'none';
+  btn.textContent = histOpen ? '📊 היסטוריה חודשית ▲' : '📊 היסטוריה חודשית ▼';
+  if(histOpen) renderHistory();
+}
+
+/* ═══════════ UTILS ═══════════ */
+function fmt(n){ return Number(n).toFixed(n%1===0?0:1); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function catColor(id){
+  const map={food:'#f59e0b',shop:'#22c55e',trans:'#3b82f6',fun:'#a855f7',health:'#ec4899',cloth:'#14b8a6',comm:'#f97316',other:'#6b7280'};
+  return map[id]||'#6b7280';
+}
+
+/* ═══════════ INIT ═══════════ */
+render();
+</script>
+</body>
+</html>
