@@ -27,6 +27,20 @@ button{font-family:inherit;cursor:pointer}
 .page{display:none;max-width:480px;margin:0 auto;padding:14px 14px 100px}
 .page.on{display:block}
 
+/* ═══ RING CARD ═══ */
+.ring-card{background:var(--surf);border:1px solid var(--border);border-radius:22px;padding:24px 20px 20px;margin-bottom:14px;text-align:center}
+.ring-wrap{position:relative;width:160px;height:160px;margin:0 auto 18px}
+.ring-svg{transform:rotate(-90deg);overflow:visible}
+.ring-bg{fill:none;stroke:var(--surf2);stroke-width:13}
+.ring-fg{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1),stroke .4s}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.ring-pct{font-size:30px;font-weight:800;line-height:1}
+.ring-lbl{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.5px}
+.ring-nums{display:flex;justify-content:center;gap:22px}
+.rn-col{display:flex;flex-direction:column;align-items:center;gap:2px}
+.rn-val{font-size:20px;font-weight:800}
+.rn-lbl{font-size:10px;color:var(--muted);font-weight:700}
+
 /* ═══ WALLET CARD ═══ */
 .wallet-card{background:linear-gradient(135deg,#1a2a1a,#0f1f2a);border:1px solid rgba(34,197,94,.2);border-radius:22px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
 .wallet-card::before{content:'💵';position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:48px;opacity:.12}
@@ -207,6 +221,27 @@ button{font-family:inherit;cursor:pointer}
 <!-- PAGE: MAIN -->
 <div class="page on" id="page-main">
 
+  <!-- Ring -->
+  <div class="ring-card">
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 160 160" width="160" height="160">
+        <circle class="ring-bg" cx="80" cy="80" r="67"/>
+        <circle class="ring-fg" id="ring-fg" cx="80" cy="80" r="67"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ring-pct">0%</div>
+        <div class="ring-lbl">מהתקציב</div>
+      </div>
+    </div>
+    <div class="ring-nums">
+      <div class="rn-col"><div class="rn-val" id="rn-spent">₪0</div><div class="rn-lbl">הוצאתי</div></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div class="rn-col"><div class="rn-val" id="rn-left" style="color:var(--green)">₪75</div><div class="rn-lbl">נשאר</div></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div class="rn-col"><div class="rn-val" style="color:var(--blue)" id="rn-budget">₪75</div><div class="rn-lbl">מסגרת</div></div>
+    </div>
+  </div>
+
   <!-- Wallet -->
   <div class="wallet-card">
     <div class="wallet-label">יתרה כוללת החודש</div>
@@ -354,6 +389,25 @@ function render(){
   const key=getKey(viewDate);
   const md=getMD(key);
   document.getElementById('month-label').textContent=MONTHS_HE[viewDate.getMonth()]+' '+viewDate.getFullYear();
+
+  // ring — total across all categories
+  const totalBudget=Object.keys(CATS).reduce((s,cId)=>s+getEffBudget(cId,key),0);
+  const totalRegSpent=Object.keys(CATS).reduce((s,cId)=>s+getCatSpent(cId,key).regular,0);
+  const ringPct=totalBudget>0?Math.min(totalRegSpent/totalBudget,1):0;
+  const ringLeft=totalBudget-totalRegSpent;
+  const rFg=document.getElementById('ring-fg');
+  const rCirc=2*Math.PI*67;
+  rFg.style.strokeDasharray=rCirc;
+  rFg.style.strokeDashoffset=rCirc*(1-ringPct);
+  rFg.style.stroke=ringPct>=1?'var(--red)':ringPct>=0.8?'var(--yellow)':'var(--green)';
+  const rPctEl=document.getElementById('ring-pct');
+  rPctEl.textContent=Math.round(ringPct*100)+'%';
+  rPctEl.style.color=ringPct>=1?'var(--red)':ringPct>=0.8?'var(--yellow)':'var(--green)';
+  document.getElementById('rn-spent').textContent='₪'+fmt(totalRegSpent);
+  const rnLeft=document.getElementById('rn-left');
+  rnLeft.textContent=(ringLeft<0?'-':'')+'₪'+fmt(Math.abs(ringLeft));
+  rnLeft.style.color=ringLeft<0?'var(--red)':ringLeft<totalBudget*0.2?'var(--yellow)':'var(--green)';
+  document.getElementById('rn-budget').textContent='₪'+fmt(totalBudget);
 
   // wallet
   const totalIn=(md.income||[]).reduce((s,i)=>s+i.amount,0);
