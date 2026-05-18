@@ -135,7 +135,7 @@ button{font-family:inherit;cursor:pointer}
       <input id="e-desc" type="text" placeholder="מה קנית?">
     </div>
     <div class="field">
-      <label>סכום (₪)</label>
+      <label>סכום ()()</label>
       <input id="e-amount" type="number" placeholder="0.00" min="0" step="0.5">
     </div>
     <div class="field">
@@ -168,7 +168,7 @@ button{font-family:inherit;cursor:pointer}
     </div>
 
     <div class="field">
-      <label>תקציב בסיס חדש (₪ לחודש)</label>
+      <label>תקציב בסיס חדש ()( לחודש)</label>
       <input id="f-amount" type="number" placeholder="60" min="1" step="5">
     </div>
 
@@ -204,17 +204,17 @@ button{font-family:inherit;cursor:pointer}
 
     <div class="budget-row">
       <div class="bud-col">
-        <div class="bud-num" id="b-spent">₪0</div>
+        <div class="bud-num" id="b-spent">)(0</div>
         <div class="bud-lbl">הוצאתי</div>
       </div>
       <div style="width:1px;background:var(--border)"></div>
       <div class="bud-col">
-        <div class="bud-num green" id="b-left">₪60</div>
+        <div class="bud-num green" id="b-left">)(60</div>
         <div class="bud-lbl">נשאר לי</div>
       </div>
       <div style="width:1px;background:var(--border)"></div>
       <div class="bud-col">
-        <div class="bud-num" id="b-budget" style="color:var(--blue)">₪60</div>
+        <div class="bud-num" id="b-budget" style="color:var(--blue)">)(60</div>
         <div class="bud-lbl">מסגרת</div>
       </div>
     </div>
@@ -343,18 +343,18 @@ function render(){
   document.getElementById('ring-sub').textContent = pct>=1 ? '⚠️ חריגה!' : 'מהתקציב';
 
   // Numbers
-  document.getElementById('b-spent').textContent = '₪' + fmt(spent.regular);
+  document.getElementById('b-spent').textContent = ')(' + fmt(spent.regular);
   const leftEl = document.getElementById('b-left');
-  leftEl.textContent = (remaining<0?'-':'') + '₪' + fmt(Math.abs(remaining));
+  leftEl.textContent = (remaining<0?'-':'') + ')(' + fmt(Math.abs(remaining));
   leftEl.className = 'bud-num ' + (remaining<0 ? 'red' : remaining < budget*0.2 ? 'yellow' : 'green');
-  document.getElementById('b-budget').textContent = '₪' + fmt(budget);
+  document.getElementById('b-budget').textContent = ')(' + fmt(budget);
 
   // Rollover bar
   const rb = document.getElementById('rollover-bar');
   if(debt > 0){
     rb.style.display = 'flex';
     rb.className = 'rollover-bar neg';
-    rb.innerHTML = `⚠️ מסגרת הופחתה ב-₪${fmt(debt)} בגלל חריגה בחודש קודם`;
+    rb.innerHTML = `⚠️ מסגרת הופחתה ב-)(${fmt(debt)} בגלל חריגה בחודש קודם`;
   } else {
     rb.style.display = 'none';
   }
@@ -390,7 +390,7 @@ function renderExpenses(key){
           ${e.oneTime ? '<span class="one-time-tag">חד-פעמי</span>' : ''}
         </div>
       </div>
-      <div class="exp-amount ${e.oneTime?'onetime':'regular'}">-₪${fmt(e.amount)}</div>
+      <div class="exp-amount ${e.oneTime?'onetime':'regular'}">-)(${fmt(e.amount)}</div>
       <button class="exp-del" onclick="delExpense('${key}',${e.id})" title="מחק">✕</button>
     </div>`;
   }).join('');
@@ -409,9 +409,9 @@ function renderHistory(){
     return `<div class="hist-row">
       <div>
         <div class="hist-month">${MONTHS_HE[m-1]} ${y}</div>
-        <div class="hist-detail">הוצאתי ₪${fmt(spent.regular)} מתוך ₪${fmt(budget)}</div>
+        <div class="hist-detail">הוצאתי )(${fmt(spent.regular)} מתוך )(${fmt(budget)}</div>
       </div>
-      <div class="hist-badge ${over?'over':'ok'}">${over?'חרגתי ₪'+fmt(diff):'חסכתי ₪'+fmt(diff)}</div>
+      <div class="hist-badge ${over?'over':'ok'}">${over?'חרגתי )('+fmt(diff):'חסכתי )('+fmt(diff)}</div>
     </div>`;
   }).join('');
 }
