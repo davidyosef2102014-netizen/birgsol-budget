@@ -258,6 +258,26 @@ button{font-family:inherit;cursor:pointer}
     </div>
   </div>
 
+  <!-- Category: יתר ביטחון -->
+  <div class="cat-card" id="cat-card-reserve">
+    <div class="cat-header">
+      <div class="cat-icon" id="ci-reserve" style="background:rgba(34,197,94,.12)">🛡️</div>
+      <div class="cat-info">
+        <div class="cat-name">יתר ביטחון</div>
+        <div class="cat-budget-text" id="cb-reserve"></div>
+      </div>
+      <div class="cat-amounts">
+        <div class="cat-spent" id="cs-reserve">₪0</div>
+        <div class="cat-left" id="cl-reserve"></div>
+      </div>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="cp-reserve"></div></div>
+    <div id="cr-reserve"></div>
+    <div class="cat-actions">
+      <button class="cat-btn-add" style="background:rgba(34,197,94,.15);color:#22c55e" onclick="openExpModal('reserve')">+ הוצאה מיתר ביטחון</button>
+    </div>
+  </div>
+
   <!-- Recent expenses -->
   <div class="section-title">🧾 הוצאות אחרונות</div>
   <div id="recent-list"></div>
@@ -290,7 +310,8 @@ const MONTHS_HE=['ינואר','פברואר','מרץ','אפריל','מאי','י�
 const GOAL_EMOJIS=['🎮','📚','👟','🎧','🚲','✈️','📱','🎨','🍕','⚽','🎸','💻','🎬','🏋️','🛍️','🎁'];
 const CATS={
   bilu:{ name:'בילוי', emoji:'🎮', color:'#f97316', budget:45 },
-  sefer:{ name:'ספרים', emoji:'📚', color:'#3b82f6', budget:15 }
+  sefer:{ name:'ספרים', emoji:'📚', color:'#3b82f6', budget:15 },
+  reserve:{ name:'יתר ביטחון', emoji:'🛡️', color:'#22c55e', budget:15 }
 };
 
 let data=JSON.parse(localStorage.getItem(STORE)||'null')||{months:{},goals:[]};
